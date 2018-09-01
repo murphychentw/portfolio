@@ -13,9 +13,10 @@ registerDoParallel()
 
 sample_number <- 200
 
-calculate_frontier <- function(returns.data, assets_name) {
+calculate_frontier <- function(returns.data) {
 
 assets_number <- ncol(returns.data)
+assets_name = colnames(returns.data)
 
 returns.data <- na.omit(returns.data)
 
@@ -80,10 +81,10 @@ cbind(eff.frontier, frontier.weights)
 
 returns.data <- read.table("data_3_assets.txt")
 returns.data$Annuity <- NULL
-eff.frontier.A <- calculate_frontier(returns.data, c("Bond", "Stock"))
+eff.frontier.A <- calculate_frontier(returns.data)
 
 returns.data <- read.table("data_3_assets.txt")
-eff.frontier.B <- calculate_frontier(returns.data, c("Annuity", "Bond", "Stock"))
+eff.frontier.B <- calculate_frontier(returns.data)
 
 p <- plot_ly(x = eff.frontier.A$Risk, y = eff.frontier.A$Return, 
         mode = "markers", type = "scattergl", name = "A: Bond+Stock",
@@ -103,12 +104,10 @@ p
 
 p.weightA <- plot_ly() %>%
   add_trace(x = seq(1, sample_number), y = eff.frontier.A$Bond, 
-        mode = "markers", type = "bar", name = "Bond",
-        marker = list(size = 5, opacity = 1.0, color = "#000099" )) %>% 
+        type = "bar", name = "Bond") %>% 
   
-  add_trace(x = seq(1, sample_number), y = eff.frontier.A$Stock, mode = "markers", 
-            type = "bar", name = "Stock",
-            marker = list(color = "#990000", size = 5, opacity = 1.0)) %>% 
+  add_trace(x = seq(1, sample_number), y = eff.frontier.A$Stock,
+            type = "bar", name = "Stock") %>% 
 			
   layout(title = "Portfolio Weighting", barmode = "stack",
          yaxis = list(title = "Weighting", tickformat = ".2%"),
@@ -119,22 +118,19 @@ p.weightA <- plot_ly() %>%
 p.weightA
 		 
 p.weightB <- plot_ly() %>%
-  add_trace(x = seq(1, sample_number), y = eff.frontier.B$Annuity, mode = "markers", 
-            type = "bar", name = "Annuity",
-            marker = list(color = "#009900", size = 5, opacity = 1.0)) %>% 
+  add_trace(x = seq(1, sample_number), y = eff.frontier.B$Annuity,
+            type = "bar", name = "Annuity") %>% 
 
-			add_trace(x = seq(1, sample_number), y = eff.frontier.B$Bond, 
-        mode = "markers", type = "bar", name = "Bond",
-        marker = list(size = 5, opacity = 1.0, color = "#000099" )) %>% 
+  add_trace(x = seq(1, sample_number), y = eff.frontier.B$Bond, 
+        type = "bar", name = "Bond") %>% 
 
-  add_trace(x = seq(1, sample_number), y = eff.frontier.B$Stock, mode = "markers", 
-            type = "bar", name = "Stock",
-            marker = list(color = "#990000", size = 5, opacity = 1.0)) %>% 	
+  add_trace(x = seq(1, sample_number), y = eff.frontier.B$Stock,
+            type = "bar", name = "Stock") %>% 	
 
-			layout(title = "Portfolio Weighting", barmode = "stack",
+  layout(title = "Portfolio Weighting", barmode = "stack",
          yaxis = list(title = "Weighting", tickformat = ".2%"),
          xaxis = list(title = "Index"),
          plot_bgcolor = "#FFFFFF",
          paper_bgcolor = "#FFFFFF"
          )
-p.weightB	
+p.weightB
