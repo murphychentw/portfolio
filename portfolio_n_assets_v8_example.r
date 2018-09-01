@@ -1,3 +1,6 @@
+# read assets from file and plot return vs risk chart
+# read portfolio from file and plot return vs risk chart
+
 library(PortfolioAnalytics)
 library(quantmod)
 library(PerformanceAnalytics)
