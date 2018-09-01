@@ -1,5 +1,8 @@
-# read assets from file and plot return vs risk chart
-# read portfolio from file and plot return vs risk chart
+# read assets from file
+# read portfolio from file
+# plot return vs risk chart
+# plot yearly return chart
+# plot cumulative return chart
 
 library(PortfolioAnalytics)
 library(quantmod)
