@@ -116,24 +116,27 @@ for(i in 1:portfolio_number){
 }
 
 p <- plot_ly() %>%
-  add_trace(x = eff.frontier.A$Risk, y = eff.frontier.A$Return, 
-    mode = "markers", type = "scattergl", name = "Annuity+BNDX+BND+\nVXUS+VTI",
-	text = eff.frontier.A.hover_text, hoverinfo = 'text', marker = list(size = 5)) %>% 
-  
-  add_trace(x = eff.frontier.B$Risk, y = eff.frontier.B$Return, mode = "markers", 
-    type = "scattergl", name = "Annuity+BNDX+BND+\nVXUS+VTI+VNQI+VNQ",
-	text = eff.frontier.B.hover_text, hoverinfo = 'text', marker = list(size = 5)) %>%
-
-  add_trace(x = port$Risk, y = port$Return,
-    mode = "markers", type = "scattergl", name = rownames(portfolio), marker = list(size = 8)) %>%
-
-  add_annotations(x = port$Risk, y = port$Return,
-    text = rownames(portfolio), ax = +40, ay = +40, arrowhead = 2, arrowsize = 1) %>% 
-	
   layout(title = "Portfolio Optimization with R and Plotly",
     yaxis = list(title = "Mean Returns", tickformat = ".2%"),
       xaxis = list(title = "Standard Deviation", tickformat = ".2%"),
       plot_bgcolor = "#FFFFFF",
       paper_bgcolor = "#FFFFFF"
       )
-p
+
+p <- add_trace(p, x = eff.frontier.A$Risk, y = eff.frontier.A$Return, 
+    mode = "markers", type = "scattergl", name = "Annuity+BNDX+BND+\nVXUS+VTI",
+	text = eff.frontier.A.hover_text, hoverinfo = 'text', marker = list(size = 5))
+  
+p <- add_trace(p, x = eff.frontier.B$Risk, y = eff.frontier.B$Return, mode = "markers", 
+    type = "scattergl", name = "Annuity+BNDX+BND+\nVXUS+VTI+VNQI+VNQ",
+	text = eff.frontier.B.hover_text, hoverinfo = 'text', marker = list(size = 5))
+
+p <- add_trace(p, x = port$Risk, y = port$Return,
+    mode = "markers", type = "scattergl", name = rownames(portfolio), marker = list(size = 8))
+
+p <- add_annotations(p, x = port$Risk, y = port$Return,
+    text = rownames(portfolio), ax = +40, ay = +40, arrowhead = 2, arrowsize = 1)
+	
+port.risk.return <- p
+
+
