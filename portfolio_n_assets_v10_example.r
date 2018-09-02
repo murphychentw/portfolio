@@ -177,23 +177,27 @@ for(i in pure_asset_number:portfolio_number){
 
 port.yearly.return.line.chart <- p
 
-######## plot portfolio cumulative return chart ########
+# text version:
+write.table(returns.data %*% t(portfolio[]), "port.yearly.return.txt", sep="\t")
+
+######## plot portfolio cumulative return chart (line chart) ########
 
 p <- plot_ly(data) %>%
   layout(title = "Portfolio Cumulative Return",
     yaxis = list(title = "Return", tickformat = ".2%"), xaxis = list(title = "Year"),
     plot_bgcolor = "#FFFFFF", paper_bgcolor = "#FFFFFF")
 
+cumulative.return <- returns.data %*% t(portfolio[])
+	
 # pure asset
 number_of_years <- nrow(returns.data)
 for(i in 1:pure_asset_number){
   weights <- t(portfolio[i,])
-  cumulative.return <- array(0, c(number_of_years))  
-  cumulative.return[1] <- returns.data[1,] %*% weights
+  cumulative.return[1,i] <- returns.data[1,] %*% weights
   for (j in 2:number_of_years) {
-    cumulative.return[j] <- (cumulative.return[j-1]+1)*((returns.data[j,] %*% weights)+1)-1
+    cumulative.return[j,i] <- (cumulative.return[j-1,i]+1)*((returns.data[j,] %*% weights)+1)-1
   }
-  p <- add_trace(p, x = ~x.axis, y = cumulative.return, 
+  p <- add_trace(p, x = ~x.axis, y = cumulative.return[,i], 
     type = "scatter", mode = "lines", name = rownames(portfolio)[i],
 	line = list(width = 0.5, dash = "dot"))
 }
@@ -201,14 +205,16 @@ for(i in 1:pure_asset_number){
 # portfolios
 for(i in pure_asset_number:portfolio_number){
   weights <- t(portfolio[i,])
-  cumulative.return <- array(0, c(number_of_years))  
-  cumulative.return[1] <- returns.data[1,] %*% weights
+  cumulative.return[1,i] <- returns.data[1,] %*% weights
   for (j in 2:number_of_years) {
-    cumulative.return[j] <- (cumulative.return[j-1]+1)*((returns.data[j,] %*% weights)+1)-1
+    cumulative.return[j,i] <- (cumulative.return[j-1,i]+1)*((returns.data[j,] %*% weights)+1)-1
   }
-  p <- add_trace(p, x = ~x.axis, y = cumulative.return, 
+  p <- add_trace(p, x = ~x.axis, y = cumulative.return[,i], 
     type = "scatter", mode = "lines", name = rownames(portfolio)[i],
 	line = list(width = 1))
 }
 
-port.cumulative.return <- p
+port.cumulative.return.line.chart <- p
+
+# text version:
+write.table(cumulative.return, "port.cumulative.return.txt", sep="\t")
