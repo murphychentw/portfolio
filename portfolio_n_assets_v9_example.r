@@ -17,72 +17,70 @@ require(ROI.plugin.quadprog)
 
 registerDoParallel()
 
-sample_number <- 100
+sample_number <- 200
 
 calculate_frontier <- function(returns.data) {
 
-assets_number <- ncol(returns.data)
-assets_name = colnames(returns.data)
+  assets_number <- ncol(returns.data)
+  assets_name = colnames(returns.data)
 
-returns.data <- na.omit(returns.data)
+  returns.data <- na.omit(returns.data)
 
-# Save mean return vector and sample covariance matrix
-meanReturns <- colMeans(returns.data)
-covMat <- cov(returns.data)
+  # Save mean return vector and sample covariance matrix
+  meanReturns <- colMeans(returns.data)
+  covMat <- cov(returns.data)
 
-# Start with the names of the assets
-port <- portfolio.spec(assets = assets_number, category_labels = assets_name)
+  # Start with the names of the assets
+  port <- portfolio.spec(assets = assets_number, category_labels = assets_name)
 
-# Box
-port <- add.constraint(port, type = "box", min = 0.01, max = 1.0)
+  # Box
+  port <- add.constraint(port, type = "box", min = 0.01, max = 1.0)
  
-# Leverage
-port <- add.constraint(portfolio = port, type = "weight_sum", min_sum=0.99, max_sum=1.01)
+  # Leverage
+  port <- add.constraint(portfolio = port, type = "weight_sum", min_sum=0.99, max_sum=1.01)
 
-# Generate random portfolios
-rportfolios_tmp <- random_portfolios(port, permutations = 2000, rp_method = "sample")
-rportfolios = rportfolios_tmp[1:sample_number,]
+  # Generate random portfolios
+  rportfolios_tmp <- random_portfolios(port, permutations = 4000, rp_method = "sample")
+  rportfolios = rportfolios_tmp[1:sample_number,]
 
-# Get minimum variance portfolio
-minvar.port <- add.objective(port, type = "risk", name = "var")
+  # Get minimum variance portfolio
+  minvar.port <- add.objective(port, type = "risk", name = "var")
 
-# Optimize
-minvar.opt <- optimize.portfolio(returns.data, minvar.port, optimize_method = "random", rp = rportfolios)
+  # Optimize
+  minvar.opt <- optimize.portfolio(returns.data, minvar.port, optimize_method = "random", rp = rportfolios)
 								 
-# Generate maximum return portfolio
-maxret.port <- add.objective(port, type = "return", name = "mean")
+  # Generate maximum return portfolio
+  maxret.port <- add.objective(port, type = "return", name = "mean")
 
-# Optimize
-maxret.opt <- optimize.portfolio(returns.data, maxret.port, optimize_method = "random", rp = rportfolios)
+  # Optimize
+  maxret.opt <- optimize.portfolio(returns.data, maxret.port, optimize_method = "random", rp = rportfolios)
 
-# Generate vector of returns
-minret <- 0.06/100
-maxret <- maxret.opt$weights %*% meanReturns
+  # Generate vector of returns
+  minret <- 0.06/100
+  maxret <- maxret.opt$weights %*% meanReturns
  
-vec <- seq(minret, maxret[1], length = sample_number)
+  vec <- seq(minret, maxret[1], length = sample_number)
 
-eff.frontier <- data.frame(Risk = rep(NA, sample_number),
-                           Return = rep(NA, sample_number))
+  eff.frontier <- data.frame(Risk = rep(NA, sample_number),
+    Return = rep(NA, sample_number))
 						   
-frontier.weights <- mat.or.vec(nr = sample_number, nc = ncol(returns.data))
-colnames(frontier.weights) <- colnames(returns.data)
+  frontier.weights <- mat.or.vec(nr = sample_number, nc = ncol(returns.data))
+  colnames(frontier.weights) <- colnames(returns.data)
 
-for(i in 1:sample_number){
-  eff.port <- port
-  eff.port <- add.constraint(eff.port, type = "return", name = "mean", return_target = vec[i])
-  eff.port <- add.objective(eff.port, type = "risk", name = "var")
-  eff.opt <- optimize.portfolio(returns.data, eff.port, optimize_method = "random", rp = rportfolios)
+  for(i in 1:sample_number){
+    eff.port <- port
+    eff.port <- add.constraint(eff.port, type = "return", name = "mean", return_target = vec[i])
+    eff.port <- add.objective(eff.port, type = "risk", name = "var")
+    eff.opt <- optimize.portfolio(returns.data, eff.port, optimize_method = "random", rp = rportfolios)
   
-  eff.frontier$Risk[i] <- sqrt(t(eff.opt$weights) %*% covMat %*% eff.opt$weights)
+    eff.frontier$Risk[i] <- sqrt(t(eff.opt$weights) %*% covMat %*% eff.opt$weights)
+    eff.frontier$Return[i] <- eff.opt$weights %*% meanReturns
+    frontier.weights[i,] = eff.opt$weights
   
-  eff.frontier$Return[i] <- eff.opt$weights %*% meanReturns
-  
-  frontier.weights[i,] = eff.opt$weights
-  
-  print(paste(round(i/sample_number * 100, 0), "% done..."))
-}
+    print(paste(round(i/sample_number * 100, 0), "% done..."))
+  }
 
-cbind(eff.frontier, frontier.weights)
+  cbind(eff.frontier, frontier.weights)
 }
 
 create_hover_text <- function(eff.frontier) {
@@ -96,6 +94,8 @@ create_hover_text <- function(eff.frontier) {
   }
   hover_text
 }
+
+######## plot portfolio return vs risk chart ########
 
 returns.data <- read.table("data_7_assets.txt")
 returns.data$VNQI <- NULL
@@ -121,8 +121,6 @@ for(i in 1:portfolio_number){
   #port$Risk[i] <- sd(t(t(weights) %*% t(returns.data)))
 }
 
-###### plot portfolio return vs risk chart ######
-
 p <- plot_ly() %>%
   layout(title = "Portfolio Optimization with R and Plotly",
     yaxis = list(title = "Mean Returns", tickformat = ".2%"),
@@ -146,7 +144,7 @@ p <- add_annotations(p, x = port$Risk, y = port$Return,
 	
 port.risk.return <- p
 
-###### plot portfolio yearly return chart ######
+######## plot portfolio yearly return chart ########
 
 returns.data <- as.matrix(returns.data)
 x.axis <- factor(rownames(returns.data), levels = rownames(returns.data))
@@ -176,7 +174,7 @@ for(i in 7:portfolio_number){
 
 port.yearly.return <- p
 
-###### plot portfolio cumulative return chart ######
+######## plot portfolio cumulative return chart ########
 
 p <- plot_ly(data) %>%
   layout(title = "Portfolio Cumulative Return",
