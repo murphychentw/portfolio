@@ -169,7 +169,7 @@ for(i in 1:pure_asset_number){
 }
 
 # portfolios
-for(i in pure_asset_number:portfolio_number){
+for(i in (pure_asset_number+1):portfolio_number){
   p <- add_trace(p, x = ~x.axis, y = returns.data %*% t(portfolio[i,]), 
     type = "scatter", mode = "lines", name = rownames(portfolio)[i],
     line = list(width = 1))
@@ -203,7 +203,7 @@ for(i in 1:pure_asset_number){
 }
 
 # portfolios
-for(i in pure_asset_number:portfolio_number){
+for(i in (pure_asset_number+1):portfolio_number){
   weights <- t(portfolio[i,])
   cumulative.return[1,i] <- returns.data[1,] %*% weights
   for (j in 2:number_of_years) {
