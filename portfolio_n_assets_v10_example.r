@@ -218,3 +218,11 @@ port.cumulative.return.line.chart <- p
 
 # text version:
 write.table(cumulative.return, "port.cumulative.return.txt", sep="\t")
+
+######## covariance matrix ########
+
+write.table(cov(returns.data), "port.covariance.txt", sep="\t")
+
+######## corelation matrix ########
+
+write.table(cor(returns.data), "port.corelation.txt", sep="\t")
