@@ -226,3 +226,20 @@ write.table(cov(returns.data), "port.covariance.txt", sep="\t")
 ######## corelation matrix ########
 
 write.table(cor(returns.data), "port.corelation.txt", sep="\t")
+
+######## histogram of return ########
+
+port.returns <- returns.data %*% t(portfolio[])
+
+p <- plot_ly(data, alpha = 0.6) %>%
+  layout(title = "Histogram of Return",
+    yaxis = list(title = "Times"), xaxis = list(title = "Return"),
+    plot_bgcolor = "#FFFFFF", paper_bgcolor = "#FFFFFF", barmode = "stack")
+
+for(i in 1:pure_asset_number){
+  p <- add_trace(p, x = port.returns[,i], type = "histogram", name = rownames(portfolio)[i])
+}
+	
+for(i in (pure_asset_number+1):portfolio_number){
+  p <- add_trace(p, x = port.returns[,i], type = "histogram", name = rownames(portfolio)[i])
+}
