@@ -231,3 +231,24 @@ for(i in 1:pure_asset_number){
 for(i in (pure_asset_number+1):portfolio_number){
   p <- add_trace(p, x = port.returns[,i], type = "histogram", name = rownames(portfolio)[i])
 }
+
+port.histogram.return.chart <- p
+
+######## min, 1st quartile, 2nd quartile, 3rd quartile, max of return for each asset ########
+
+port.returns <- returns.data %*% t(portfolio[])
+
+p <- plot_ly(data, alpha = 0.6) %>%
+  layout(title = "Distribution of Return",
+    yaxis = list(title = "Return", tickformat = ".2%"), xaxis = list(title = "Asset"),
+    plot_bgcolor = "#FFFFFF", paper_bgcolor = "#FFFFFF")
+
+for(i in 1:pure_asset_number){
+  p <- add_trace(p, y = port.returns[,i], type = "box", name = rownames(portfolio)[i], boxpoints = FALSE)
+}
+	
+for(i in (pure_asset_number+1):portfolio_number){
+  p <- add_trace(p, y = port.returns[,i], type = "box", name = rownames(portfolio)[i], boxpoints = FALSE)
+}
+
+port.distribution.return.chart <- p
